@@ -7,7 +7,7 @@ def parse_args():
     desc = "Tensorflow implementation of AttnGAN"
     parser = argparse.ArgumentParser(description=desc)
     parser.add_argument('--phase', type=str, default='train', choices=('train', 'test'), help='phase name')
-    parser.add_argument('--dataset', type=str, default='birds', help='dataset_name')
+    parser.add_argument('--dataset', type=str, default='CUB_200_2011', help='dataset_name')
 
     parser.add_argument('--iteration', type=int, default=1000000, help='The number of training iterations')
     parser.add_argument('--decay_flag', type=str2bool, default=True, help='The decay_flag')

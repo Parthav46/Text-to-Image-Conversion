@@ -174,7 +174,6 @@ class AttnGAN():
             self.rnn_encoder = RnnEncoder(n_words=self.vocab_size, embed_dim=self.embed_dim,
                                           drop_rate=0.5, n_hidden=128, n_layer=1,
                                           bidirectional=True, rnn_type='lstm')
-            self.cnn_encoder = CnnEncoder(embed_dim=self.embed_dim)
             self.ca_net = CA_NET(c_dim=self.z_dim)
             self.generator = Generator(channels=self.g_dim)
             
@@ -191,7 +190,7 @@ class AttnGAN():
             # self.embed_optimizer = tf.keras.optimizers.Adam(learning_rate=self.init_lr, beta_1=0.5, beta_2=0.999, epsilon=1e-08)
 
             """ Checkpoint """
-            self.ckpt = tf.train.Checkpoint(rnn_encoder=self.rnn_encoder, cnn_encoder=self.cnn_encoder,
+            self.ckpt = tf.train.Checkpoint(rnn_encoder=self.rnn_encoder,
                                             ca_net = self.ca_net,
                                             generator=self.generator)
                                             # discriminator=self.discriminator,
@@ -403,7 +402,7 @@ class AttnGAN():
 
         z = tf.random.normal(shape=[self.batch_size, self.z_dim])
         fake_imgs = self.generator([c_code, z, word_emb, mask], training=True)
-
+        
         fake_256 = fake_imgs[-1]
 
         for i in range(5) :

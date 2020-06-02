@@ -5,3 +5,5 @@ results/
 samples/
 __pycache__/
 .vscode/
+birds/
+attributes.txt
