@@ -15,7 +15,7 @@ def parse_args():
 
     parser.add_argument('--batch_size', type=int, default=8, help='The size of batch size for each gpu')
     parser.add_argument('--print_freq', type=int, default=1000, help='The number of image_print_freq')
-    parser.add_argument('--save_freq', type=int, default=10000, help='The number of ckpt_save_freq')
+    parser.add_argument('--save_freq', type=int, default=2000, help='The number of ckpt_save_freq')
 
     parser.add_argument('--lr', type=float, default=0.0002, help='The learning rate')
 
