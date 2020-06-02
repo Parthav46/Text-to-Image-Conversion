@@ -386,41 +386,42 @@ class AttnGAN():
 
         self.result_dir = os.path.join(self.result_dir, self.model_dir)
         check_folder(self.result_dir)
-
+        num = 0
         # write html for visual comparison
-        index_path = os.path.join(self.result_dir, 'index.html')
-        index = open(index_path, 'w')
-        index.write("<html><body><table><tr>")
-        index.write("<th>name</th><th>input</th><th>output</th></tr>")
+        # index_path = os.path.join(self.result_dir, 'index.html')
+        # index = open(index_path, 'w')
+        # index.write("<html><body><table><tr>")
+        # index.write("<th>name</th><th>input</th><th>output</th></tr>")
+        for i in self.img_caption_iter:
+          real_256, caption = i
+          target_sentence_index = tf.random.uniform(shape=[], minval=0, maxval=10, dtype=tf.int32)
+          caption = tf.gather(caption, target_sentence_index, axis=1)
 
-        real_256, caption = next(self.img_caption_iter)
-        target_sentence_index = tf.random.uniform(shape=[], minval=0, maxval=10, dtype=tf.int32)
-        caption = tf.gather(caption, target_sentence_index, axis=1)
+          word_emb, sent_emb, mask = self.rnn_encoder(caption, training=False)
+          c_code, mu, logvar = self.ca_net(sent_emb, training=False)
 
-        word_emb, sent_emb, mask = self.rnn_encoder(caption, training=False)
-        c_code, mu, logvar = self.ca_net(sent_emb, training=False)
+          z = tf.random.normal(shape=[self.batch_size, self.z_dim])
+          fake_imgs = self.generator([c_code, z, word_emb, mask], training=True)
 
-        z = tf.random.normal(shape=[self.batch_size, self.z_dim])
-        fake_imgs = self.generator([c_code, z, word_emb, mask], training=True)
-        
-        fake_256 = fake_imgs[-1]
+          fake_256 = fake_imgs[-1]
 
-        for i in range(5) :
-            real_path = os.path.join(self.result_dir, 'real_{}.jpg'.format(i))
-            fake_path = os.path.join(self.result_dir, 'fake_{}.jpg'.format(i))
+          for j in range(len(fake_256)) :
+              # real_path = os.path.join(self.result_dir, 'real_{}.jpg'.format(i))
+              fake_path = os.path.join(self.result_dir, 'fake_{}.jpg'.format(num))
 
-            real_image = np.expand_dims(real_256[i], axis=0)
-            fake_image = np.expand_dims(fake_256[i], axis=0)
+              # real_image = np.expand_dims(real_256[i], axis=0)
+              fake_image = np.expand_dims(fake_256[j], axis=0)
 
-            save_images(real_image, [1, 1], real_path)
-            save_images(fake_image, [1, 1], fake_path)
+              # save_images(real_image, [1, 1], real_path)
+              save_images(fake_image, [1, 1], fake_path)
+              num+=1
 
-            index.write("<td>%s</td>" % os.path.basename(real_path))
-            index.write("<td><img src='%s' width='%d' height='%d'></td>" % (real_path if os.path.isabs(real_path) else (
-                    '../..' + os.path.sep + real_path), self.img_width, self.img_height))
+          #     # index.write("<td>%s</td>" % os.path.basename(real_path))
+          #     # index.write("<td><img src='%s' width='%d' height='%d'></td>" % (real_path if os.path.isabs(real_path) else (
+          #     #         '../..' + os.path.sep + real_path), self.img_width, self.img_height))
 
-            index.write("<td><img src='%s' width='%d' height='%d'></td>" % (fake_path if os.path.isabs(fake_path) else (
-                    '../..' + os.path.sep + fake_path), self.img_width, self.img_height))
-            index.write("</tr>")
+          #     # index.write("<td><img src='%s' width='%d' height='%d'></td>" % (fake_path if os.path.isabs(fake_path) else (
+          #     #         '../..' + os.path.sep + fake_path), self.img_width, self.img_height))
+          #     # index.write("</tr>")
 
-        index.close()
+          # index.close()
