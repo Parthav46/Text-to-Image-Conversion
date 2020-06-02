@@ -1,6 +1,5 @@
 from utils import *
 import time
-import matplotlib.pyplot as plt
 from tensorflow.python.data.experimental import prefetch_to_device, shuffle_and_repeat, map_and_batch # >= tf 1.15
 from networks import *
 
