@@ -2,7 +2,7 @@ from utils import *
 import time
 from tensorflow.python.data.experimental import prefetch_to_device, shuffle_and_repeat, map_and_batch # >= tf 1.15
 from networks import *
-
+fmap = True
 class AttnGAN():
     def __init__(self, args):
 
@@ -403,7 +403,7 @@ class AttnGAN():
           fake_imgs = self.generator([c_code, z, word_emb, mask], training=True)
 
           fake_256 = fake_imgs[-1]
-
+          fake_64 = fake_imgs[0]
           for j in range(len(fake_256)) :
               # real_path = os.path.join(self.result_dir, 'real_{}.jpg'.format(i))
               fake_path = os.path.join(self.result_dir, 'fake_{}.jpg'.format(num))
@@ -413,6 +413,16 @@ class AttnGAN():
 
               # save_images(real_image, [1, 1], real_path)
               save_images(fake_image, [1, 1], fake_path)
+              if fmap:
+                  fake_path_64 = os.path.join(self.result_dir, 'fake_64_{}.jpg'.format(num))
+
+                    # real_image = np.expand_dims(real_256[i], axis=0)
+                  fake_image_64 = np.expand_dims(fake_64[j], axis=0)
+
+                    # save_images(real_image, [1, 1], real_path)
+                  save_images(fake_image_64, [1, 1], fake_path_64)
+
+
               num+=1
 
           #     # index.write("<td>%s</td>" % os.path.basename(real_path))

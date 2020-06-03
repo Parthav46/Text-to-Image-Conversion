@@ -1,7 +1,8 @@
 from ops import *
 from tensorflow.keras import Sequential
-
-
+import cv2
+from AttnGAN import fmap
+from utils import *
 ##################################################################################
 # Generator
 ##################################################################################
@@ -160,7 +161,14 @@ class FeatureAttention(tf.keras.layers.Layer):
         
         weighted_context = tf.matmul(tf.squeeze(x), attn, transpose_a=True, transpose_b=True)
         weighted_context = tf.reshape(tf.transpose(weighted_context, perm=[0, 2, 1]), shape=[self.bs, self.h, self.w, -1])
-        
+        avg_attn = tf.math.reduce_mean(weighted_context, axis=-1, keepdims=False)
+        if(fmap):
+            for j in range(len(avg_attn)) :
+                fake_path = os.path.join(self.result_dir, 'fake_map{}.jpg'.format(num))
+
+                # real_image = np.expand_dims(real_256[i], axis=0)
+                cv2.imwrite(fake_path, (avg_attn[j]*255).astype('uint8'))
+                num+=1
         return weighted_context
 
 class UpBlock(tf.keras.layers.Layer):
