@@ -109,7 +109,9 @@ class SpatialAttention(tf.keras.layers.Layer):
         self.bs, self.h, self.w, _ = input_shape[0]
         self.hw = self.h * self.w # length of query
         self.seq_len = input_shape[2][1] # length of source
-
+        self.gamma = self.add_weight(self.name + '_gammaw',
+                                     shape=(),
+                                     initializer=tf.initializers.Ones)
     def call(self, inputs, training=True):
         x, sentence, context, mask = inputs # context = word_emb
         x = tf.reshape(x, shape=[self.bs, self.hw, -1])
@@ -125,7 +127,7 @@ class SpatialAttention(tf.keras.layers.Layer):
         attn = tf.where(tf.equal(mask, True), x=tf.constant(-float('inf'), dtype=tf.float32, shape=mask.shape), y=attn)
         attn = tf.nn.softmax(attn)
         attn = tf.reshape(attn, shape=[self.bs, self.hw, self.seq_len])
-
+        attn = tf.multiply(attn, self.gamma)
         weighted_context = tf.matmul(context, attn, transpose_a=True, transpose_b=True)
         weighted_context = tf.reshape(tf.transpose(weighted_context, perm=[0, 2, 1]), shape=[self.bs, self.h, self.w, -1])
         word_attn = tf.reshape(attn, shape=[self.bs, self.h, self.w, -1])
@@ -160,7 +162,7 @@ class FeatureAttention(tf.keras.layers.Layer):
 
         attn = tf.matmul(x_f, tf.transpose(x_g, perm = [0,2,1])) 
         attn = tf.nn.softmax(attn)
-        tf.multiply(attn, self.gamma)
+        attn = tf.multiply(attn, self.gamma)
         
         weighted_context = tf.matmul(tf.squeeze(x), attn, transpose_a=True, transpose_b=True)
         weighted_context = tf.reshape(tf.transpose(weighted_context, perm=[0, 2, 1]), shape=[self.bs, self.h, self.w, -1])
