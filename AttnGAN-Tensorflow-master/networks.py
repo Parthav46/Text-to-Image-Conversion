@@ -139,7 +139,9 @@ class FeatureAttention(tf.keras.layers.Layer):
 
         self.conv_f = Conv(self.channels, kernel=1, stride=1, use_bias=False, name='conv_f')
         self.conv_g = Conv(self.channels, kernel=1, stride=1, use_bias=False, name='conv_g')
-        
+         self.gamma = self.add_weight(self.name + '_gamma',
+                                     shape=(),
+                                     initializer=tf.initializers.Ones)
 
     def build(self, input_shape):
         self.bs, self.h, self.w, self.r = input_shape[0]
@@ -157,6 +159,7 @@ class FeatureAttention(tf.keras.layers.Layer):
 
         attn = tf.matmul(x_f, tf.transpose(x_g, perm = [0,2,1])) 
         attn = tf.nn.softmax(attn)
+        tf.multiply(attn, self.gamma)
         
         weighted_context = tf.matmul(tf.squeeze(x), attn, transpose_a=True, transpose_b=True)
         weighted_context = tf.reshape(tf.transpose(weighted_context, perm=[0, 2, 1]), shape=[self.bs, self.h, self.w, -1])
