@@ -1,8 +1,9 @@
 from ops import *
 from tensorflow.keras import Sequential
-import cv2
+import cv2, numpy
 from AttnGAN import fmap
 from utils import *
+num = 0
 ##################################################################################
 # Generator
 ##################################################################################
@@ -162,12 +163,16 @@ class FeatureAttention(tf.keras.layers.Layer):
         weighted_context = tf.matmul(tf.squeeze(x), attn, transpose_a=True, transpose_b=True)
         weighted_context = tf.reshape(tf.transpose(weighted_context, perm=[0, 2, 1]), shape=[self.bs, self.h, self.w, -1])
         avg_attn = tf.math.reduce_mean(weighted_context, axis=-1, keepdims=False)
+        global num
         if(fmap):
-            for j in range(len(avg_attn)) :
-                fake_path = os.path.join(self.result_dir, 'fake_map{}.jpg'.format(num))
-
+           
+            for j in range(len(weighted_context)) :
+                fake_path = os.path.join("drive/My Drive/ML_Lab/results/maps", 'fake_map{}.jpg'.format(num))
+                temp = avg_attn[j]-tf.math.reduce_min(tf.reshape(avg_attn[j],shape = [-1]))
+                temp = temp/tf.math.reduce_max(tf.reshape(temp,shape = [-1]))
                 # real_image = np.expand_dims(real_256[i], axis=0)
-                cv2.imwrite(fake_path, (avg_attn[j]*255).astype('uint8'))
+                # print(temp.numpy()*255)
+                cv2.imwrite(fake_path, (temp.numpy()*255).astype('uint8'))
                 num+=1
         return weighted_context
 

@@ -1,8 +1,9 @@
 from utils import *
 import time
 from tensorflow.python.data.experimental import prefetch_to_device, shuffle_and_repeat, map_and_batch # >= tf 1.15
-from networks import *
 fmap = True
+from networks import *
+
 class AttnGAN():
     def __init__(self, args):
 
@@ -385,6 +386,8 @@ class AttnGAN():
 
         self.result_dir = os.path.join(self.result_dir, self.model_dir)
         check_folder(self.result_dir)
+        check_folder(self.result_dir+'/64')
+        check_folder(self.result_dir+'/maps')
         num = 0
         # write html for visual comparison
         # index_path = os.path.join(self.result_dir, 'index.html')
@@ -414,7 +417,7 @@ class AttnGAN():
               # save_images(real_image, [1, 1], real_path)
               save_images(fake_image, [1, 1], fake_path)
               if fmap:
-                  fake_path_64 = os.path.join(self.result_dir, 'fake_64_{}.jpg'.format(num))
+                  fake_path_64 = os.path.join(self.result_dir +'/64', 'fake_64_{}.jpg'.format(num))
 
                     # real_image = np.expand_dims(real_256[i], axis=0)
                   fake_image_64 = np.expand_dims(fake_64[j], axis=0)
