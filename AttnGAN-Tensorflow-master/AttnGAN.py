@@ -176,7 +176,7 @@ class AttnGAN():
             self.ca_net = CA_NET(c_dim=self.z_dim)
             self.generator = Generator(channels=self.g_dim)
             
-            # self.discriminator = Discriminator(channels=self.d_dim, embed_dim=self.embed_dim)
+            self.discriminator = Discriminator(channels=self.d_dim, embed_dim=self.embed_dim)
 
             # """ Optimizer """
             # self.g_optimizer = tf.keras.optimizers.Adam(learning_rate=self.init_lr, beta_1=0.5, beta_2=0.999, epsilon=1e-08)
