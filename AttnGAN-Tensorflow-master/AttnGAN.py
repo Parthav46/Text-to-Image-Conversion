@@ -192,7 +192,7 @@ class AttnGAN():
             self.ckpt = tf.train.Checkpoint(rnn_encoder=self.rnn_encoder,
                                             ca_net = self.ca_net,
                                             generator=self.generator)
-                                            # discriminator=self.discriminator,
+                                            discriminator=self.discriminator,
                                             # g_optimizer=self.g_optimizer,
                                             # d_64_optimizer=d_64_optimizer,
                                             # d_128_optimizer=d_128_optimizer,
@@ -400,16 +400,16 @@ class AttnGAN():
           c_code, mu, logvar = self.ca_net(sent_emb, training=False)
 
           z = tf.random.normal(shape=[self.batch_size, self.z_dim])
-          fake_imgs = self.generator([c_code, z, word_emb, mask], training=True)
+          fake_64, fake_128 = self.generator([c_code, z, word_emb, mask], training=True)
+          uncond_fake_logits, cond_fake_logits = self.discriminator([fake_64, fake_128,  sent_emb], training=True)
 
-          fake_256 = fake_imgs[-1]
-
-          for j in range(len(fake_256)) :
+          print(uncond_fake_logits, cond_fake_logits)  
+          for j in range(len(fake_128)) :
               # real_path = os.path.join(self.result_dir, 'real_{}.jpg'.format(i))
               fake_path = os.path.join(self.result_dir, 'fake_{}.jpg'.format(num))
 
               # real_image = np.expand_dims(real_256[i], axis=0)
-              fake_image = np.expand_dims(fake_256[j], axis=0)
+              fake_image = np.expand_dims(fake_128[j], axis=0)
 
               # save_images(real_image, [1, 1], real_path)
               save_images(fake_image, [1, 1], fake_path)
