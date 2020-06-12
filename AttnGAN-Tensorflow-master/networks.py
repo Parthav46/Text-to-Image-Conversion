@@ -246,6 +246,8 @@ class Generator_128(tf.keras.layers.Layer):
 
         for i in range(2):
             model += [ResBlock(self.channels * 3, name='resblock_' + str(i))]
+        
+        model += [ResBlock(self.channels * 2, name='resblock_2')]
 
         model += [UpBlock(self.channels, name='up_block')]
 
