@@ -148,7 +148,7 @@ class AttnGAN():
             self.start_iteration = 0
 
             if self.manager.latest_checkpoint:
-                self.ckpt.restore(self.manager.latest_checkpoint)
+                self.ckpt.restore(self.manager.latest_checkpoint).expect_partial()
                 self.start_iteration = int(self.manager.latest_checkpoint.split('-')[-1])
                 print('Latest checkpoint restored!!')
                 print('start iteration : ', self.start_iteration)
