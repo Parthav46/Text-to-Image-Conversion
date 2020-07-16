@@ -111,7 +111,7 @@ class SpatialAttention(tf.keras.layers.Layer):
         self.seq_len = input_shape[2][1] # length of source
         self.gamma = self.add_weight(self.name + '_gammaw',
                                      shape=(),
-                                     initializer=tf.initializers.Ones)
+                                     initializer=tf.initializers.Zeros)
     def call(self, inputs, training=True):
         x, sentence, context, mask = inputs # context = word_emb
         x = tf.reshape(x, shape=[self.bs, self.hw, -1])
@@ -148,7 +148,7 @@ class FeatureAttention(tf.keras.layers.Layer):
         self.hw = self.h * self.w # length of query
         self.gamma = self.add_weight(self.name + '_gamma',
                                      shape=(),
-                                     initializer=tf.initializers.Ones)
+                                     initializer=tf.initializers.Zeros)
         
     def call(self, inputs, training=True):
         x = inputs 
