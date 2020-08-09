@@ -403,6 +403,8 @@ class AttnGAN():
           fake_imgs = self.generator([c_code, z, word_emb, mask], training=True)
 
           fake_256 = fake_imgs[-1]
+          print(self.generator.g_128.feature_attention.gamma)
+          print(self.generator.g_128.spatial_attention.gamma)
 
           for j in range(len(fake_256)) :
               # real_path = os.path.join(self.result_dir, 'real_{}.jpg'.format(i))

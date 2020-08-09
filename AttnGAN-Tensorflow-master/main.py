@@ -10,14 +10,14 @@ def parse_args():
     parser.add_argument('--dataset', type=str, default='CUB_200_2011', help='dataset_name')
 
     parser.add_argument('--iteration', type=int, default=1000000, help='The number of training iterations')
-    parser.add_argument('--decay_flag', type=str2bool, default=True, help='The decay_flag')
-    parser.add_argument('--decay_iter', type=int, default=500000, help='decay epoch')
+    parser.add_argument('--decay_flag', type=str2bool, default=False, help='The decay_flag')
+    parser.add_argument('--decay_iter', type=int, default=100000, help='decay epoch')
 
     parser.add_argument('--batch_size', type=int, default=8, help='The size of batch size for each gpu')
     parser.add_argument('--print_freq', type=int, default=1000, help='The number of image_print_freq')
     parser.add_argument('--save_freq', type=int, default=2000, help='The number of ckpt_save_freq')
 
-    parser.add_argument('--lr', type=float, default=0.00004, help='The learning rate')
+    parser.add_argument('--lr', type=float, default=0.00008, help='The learning rate')
 
     parser.add_argument('--gan_type', type=str, default='gan', help='[gan / lsgan / hinge]')
 

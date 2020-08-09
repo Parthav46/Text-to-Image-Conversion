@@ -109,9 +109,10 @@ class SpatialAttention(tf.keras.layers.Layer):
         self.bs, self.h, self.w, _ = input_shape[0]
         self.hw = self.h * self.w # length of query
         self.seq_len = input_shape[2][1] # length of source
-        self.gamma = self.add_weight(self.name + '_gammaw',
-                                     shape=(),
-                                     initializer=tf.initializers.Zeros)
+        self.gamma = tf.constant(0.5, dtype = tf.float32)
+#self.add_weight(self.name + '_gammaw',
+ #                                    shape=(),
+  #                                   initializer=tf.initializers.Zeros)
     def call(self, inputs, training=True):
         x, sentence, context, mask = inputs # context = word_emb
         x = tf.reshape(x, shape=[self.bs, self.hw, -1])
@@ -139,32 +140,36 @@ class FeatureAttention(tf.keras.layers.Layer):
         super(FeatureAttention, self).__init__(name=name)
         self.channels = channels # idf, x.shape[-1]
 
-        self.conv_f = Conv(self.channels, kernel=1, stride=1, use_bias=False, name='conv_f')
-        self.conv_g = Conv(self.channels, kernel=1, stride=1, use_bias=False, name='conv_g')
+        self.conv_fn = Conv(self.channels//8, kernel=1, stride=1, use_bias=False, name='conv_fn')
+        self.conv_gn = Conv(self.channels//8, kernel=1, stride=1, use_bias=False, name='conv_gn')
+        self.conv_qn = Conv(self.channels, kernel=1, stride=1, use_bias=False, name='conv_qn')
          
 
     def build(self, input_shape):
         self.bs, self.h, self.w, self.r = input_shape[0]
         self.hw = self.h * self.w # length of query
-        self.gamma = self.add_weight(self.name + '_gamma',
-                                     shape=(),
-                                     initializer=tf.initializers.Zeros)
+        self.gamma = tf.constant(0.5, dtype = tf.float32)
+
+#        self.gamma = self.add_weight(self.name + '_gamma',
+ #                                    shape=(),
+  #                                   initializer=tf.initializers.Zeros)
         
     def call(self, inputs, training=True):
-        x = inputs 
-        x = tf.reshape(x, shape=[self.bs, self.hw, -1])
-        x = tf.expand_dims(x, axis = -1)
-        
-        x_f = self.conv_f(x)
-        x_g = self.conv_g(x)
+        x = inputs[0]
+       # x = tf.reshape(x, shape=[self.bs, self.hw, -1])
+       # x = tf.expand_dims(x, axis = -1)
+        x_f = self.conv_fn(x)
+        x_g = self.conv_gn(x)
+        x_q = self.conv_qn(x)
+      
         x_f = tf.reshape(x_f, shape = [self.bs, self.hw, -1])
         x_g = tf.reshape(x_g, shape = [self.bs, self.hw, -1])
+        x_q = tf.reshape(x_q, shape = [self.bs, self.hw, -1])
 
         attn = tf.matmul(x_f, tf.transpose(x_g, perm = [0,2,1])) 
         attn = tf.nn.softmax(attn)
         attn = tf.multiply(attn, self.gamma)
-        
-        weighted_context = tf.matmul(tf.squeeze(x), attn, transpose_a=True, transpose_b=True)
+        weighted_context = tf.matmul(x_q, attn, transpose_a=True, transpose_b=True)
         weighted_context = tf.reshape(tf.transpose(weighted_context, perm=[0, 2, 1]), shape=[self.bs, self.h, self.w, -1])
         
         return weighted_context
@@ -511,7 +516,7 @@ class Discriminator_256(tf.keras.layers.Layer):
         return model, code_block
 
 
-    def call(self, inputs, training=True):
+    def call(self, inputs, training=False):
         x, sent_emb = inputs
 
         x = self.model(x, training=training)
